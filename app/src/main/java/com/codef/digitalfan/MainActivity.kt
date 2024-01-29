@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                 .setMimeType(MimeTypes.AUDIO_MPEG)
                 .setClippingConfiguration(
                     MediaItem.ClippingConfiguration.Builder()
-                        .setStartPositionMs(1 * 1000)
+                        .setStartPositionMs(1 * 60000)
                         .setEndPositionMs(28 * 60000)
                         .build()
                 )

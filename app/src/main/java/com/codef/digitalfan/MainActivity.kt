@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
         exoPlayer = ExoPlayer.Builder(this).build()
         exoPlayer.setMediaItem(mediaItemClipped)
         exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
+        exoPlayer.setHandleAudioBecomingNoisy(true)
         exoPlayer.prepare()
         exoPlayer.play()
 

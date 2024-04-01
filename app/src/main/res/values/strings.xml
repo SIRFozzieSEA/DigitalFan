@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">DigitalFan</string>
     <string name="digitalfan">DigitalFan</string>
+
+    <string-array name="alarm_array">
+        <item>No Alarm</item>
+        <item>In Office</item>
+        <item>Work From Home</item>
+    </string-array>
+
 </resources>

@@ -21,9 +21,9 @@ class AlarmReceiver : BroadcastReceiver() {
             val currentHour = currentTime.hour
             val currentMinute = currentTime.minute
             val givenTime = if (selectedItem == "Work From Home") {
-                LocalTime.parse("16:50")
+                LocalTime.parse("08:40")
             } else {
-                LocalTime.parse("07:49")
+                LocalTime.parse("07:50")
             }
 
             val currentTimeNoSeconds = LocalTime.of(currentHour, currentMinute)

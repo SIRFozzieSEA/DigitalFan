@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.OptIn
 import androidx.core.view.GestureDetectorCompat
@@ -46,10 +47,15 @@ class MainActivity : ComponentActivity(),
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                val selectedItem = parent.getItemAtPosition(position).toString()
+
+                val alarmValues = resources.getStringArray(R.array.alarm_values)
+                val selectedAlarmValue = alarmValues.get(position).toString()
                 val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
                 with (sharedPref.edit()) {
-                    putString("selectedItem", selectedItem)
+                    putString("wakeUpTime", selectedAlarmValue)
+                    if (selectedAlarmValue != "No Alarm") {
+                        Toast.makeText(this@MainActivity, "Alarm will sound at: $selectedAlarmValue", Toast.LENGTH_SHORT).show()
+                    }
                     apply()
                 }
             }

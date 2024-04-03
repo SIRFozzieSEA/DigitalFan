@@ -14,17 +14,14 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val exoPlayer = ExoPlayerSingleton.getInstance(context)
         val sharedPref = context.getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
-        val selectedItem = sharedPref.getString("selectedItem", "No Alarm")
+        val wakeUpTime = sharedPref.getString("wakeUpTime", "No Alarm")
 
-        if (selectedItem != "No Alarm") {
+        if (wakeUpTime != "No Alarm") {
+
             val currentTime = LocalTime.now()
             val currentHour = currentTime.hour
             val currentMinute = currentTime.minute
-            val givenTime = if (selectedItem == "Work From Home") {
-                LocalTime.parse("08:40")
-            } else {
-                LocalTime.parse("07:50")
-            }
+            val givenTime = LocalTime.parse(wakeUpTime)
 
             val currentTimeNoSeconds = LocalTime.of(currentHour, currentMinute)
             if (currentTimeNoSeconds.equals(givenTime) && currentTime.isAfter(givenTime)) {
@@ -36,6 +33,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
                 exoPlayer.prepare()
             }
+
         }
 
     }

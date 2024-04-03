@@ -6,6 +6,14 @@
         <item>No Alarm</item>
         <item>In Office</item>
         <item>Work From Home</item>
+        <item>Work From Home - On Call</item>
+    </string-array>
+
+    <string-array name="alarm_values">
+        <item>No Alarm</item>
+        <item>07:50</item>
+        <item>08:40</item>
+        <item>07:30</item>
     </string-array>
 
 </resources>

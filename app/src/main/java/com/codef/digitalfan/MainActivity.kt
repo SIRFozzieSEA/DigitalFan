@@ -50,11 +50,14 @@ class MainActivity : ComponentActivity(),
 
                 val alarmValues = resources.getStringArray(R.array.alarm_values)
                 val selectedAlarmValue = alarmValues[position].toString()
+                val selectedAlarmTimeArray = selectedAlarmValue.split(" ")
+                val selectedAlarmTime  = selectedAlarmTimeArray[0]
+                val selectedAlarmAmPm  = selectedAlarmTimeArray[1]
                 val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
                 with (sharedPref.edit()) {
-                    putString("wakeUpTime", selectedAlarmValue)
+                    putString("wakeUpTime", selectedAlarmTime)
                     if (selectedAlarmValue != "No Alarm") {
-                        Toast.makeText(this@MainActivity, "Alarm will sound at: $selectedAlarmValue", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Alarm will sound at $selectedAlarmTime $selectedAlarmAmPm", Toast.LENGTH_SHORT).show()
                     }
                     apply()
                 }

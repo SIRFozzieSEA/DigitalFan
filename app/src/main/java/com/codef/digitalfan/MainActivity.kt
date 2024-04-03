@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity(),
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
 
                 val alarmValues = resources.getStringArray(R.array.alarm_values)
-                val selectedAlarmValue = alarmValues.get(position).toString()
+                val selectedAlarmValue = alarmValues[position].toString()
                 val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
                 with (sharedPref.edit()) {
                     putString("wakeUpTime", selectedAlarmValue)

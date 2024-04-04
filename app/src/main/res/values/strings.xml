@@ -1,23 +1,4 @@
 <resources>
     <string name="app_name">DigitalFan</string>
     <string name="digitalfan">DigitalFan</string>
-
-    <string-array name="alarm_array">
-        <item>No Alarm</item>
-        <item>Steve - In Office</item>
-        <item>Steve - Work From Home</item>
-        <item>Steve - Work From Home (On Call)</item>
-        <item>Tenzin - In Office</item>
-        <item>Tenzin - Work From Home</item>
-    </string-array>
-
-    <string-array name="alarm_values">
-        <item>No Alarm</item>
-        <item>07:50 AM</item>
-        <item>08:40 AM</item>
-        <item>07:30 AM</item>
-        <item>07:30 AM</item>
-        <item>08:20 AM</item>
-    </string-array>
-
 </resources>

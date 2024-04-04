@@ -14,9 +14,9 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val exoPlayer = ExoPlayerSingleton.getInstance(context)
         val sharedPref = context.getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
-        val wakeUpTime = sharedPref.getString("wakeUpTime", "No Alarm")
+        val wakeUpTime = sharedPref.getString("wakeUpTime", "No")
 
-        if (wakeUpTime != "No Alarm") {
+        if (wakeUpTime != "Alarm") {
 
             val currentTime = LocalTime.now()
             val currentHour = currentTime.hour
@@ -29,7 +29,8 @@ class AlarmReceiver : BroadcastReceiver() {
                     MediaItem.Builder()
                         .setUri(Uri.parse("asset:///alarm.mp3"))
                         .setMimeType(MimeTypes.AUDIO_MPEG)
-                        .build())
+                        .build()
+                )
                 exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
                 exoPlayer.prepare()
             }

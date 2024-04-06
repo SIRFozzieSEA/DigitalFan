@@ -4,9 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -17,9 +15,6 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.OptIn
 import androidx.core.view.GestureDetectorCompat
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import java.util.Calendar
@@ -40,10 +35,12 @@ class MainActivity : ComponentActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        exoPlayer = ExoPlayerSingleton.getInstance(this)
+        ExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+
         loadAlarms()
-        setUpSpinner()
         setUpAlarmManagerAndGestureDetector()
-        setupExoPlayer()
+        setUpSpinner()
 
     }
 
@@ -71,7 +68,6 @@ class MainActivity : ComponentActivity(),
                 val sharedPref = getSharedPreferences("DigitalFanPrefs", MODE_PRIVATE)
                 with(sharedPref.edit()) {
                     putString("wakeUpTime", selectedAlarmTime)
-                    Log.d("bobo", "Alarm set to $selectedAlarmTime")
                     if (selectedAlarmTime != "No") {
                         Toast.makeText(
                             this@MainActivity,
@@ -118,28 +114,6 @@ class MainActivity : ComponentActivity(),
         gestureDetector.setOnDoubleTapListener(this)
 
     }
-
-    private fun setupExoPlayer() {
-
-        exoPlayer = ExoPlayerSingleton.getInstance(this)
-        exoPlayer.setMediaItem(
-            MediaItem.Builder()
-                .setUri(Uri.parse("asset:///fan.mp3"))
-                .setMimeType(MimeTypes.AUDIO_MPEG)
-                .setClippingConfiguration(
-                    MediaItem.ClippingConfiguration.Builder()
-                        .setStartPositionMs(1 * 60000)
-                        .setEndPositionMs(28 * 60000)
-                        .build()
-                )
-                .build()
-        )
-        exoPlayer.repeatMode = Player.REPEAT_MODE_ONE
-        exoPlayer.setHandleAudioBecomingNoisy(true)
-        exoPlayer.prepare()
-
-    }
-
 
     override fun onDestroy() {
         super.onDestroy()
@@ -212,26 +186,12 @@ class MainActivity : ComponentActivity(),
         addAlarm("Tenzin - Work From Home|08:20 AM")
     }
 
-    fun addAlarm(key: String) {
+    private fun addAlarm(key: String) {
         alarmKeys.add(key)
         saveAlarms()
     }
 
-    fun removeAlarm(index: Int) {
-        if (index in alarmKeys.indices) {
-            alarmKeys.removeAt(index)
-            saveAlarms()
-        }
-    }
-
-    fun modifyAlarm(index: Int, newKey: String) {
-        if (index in alarmKeys.indices) {
-            alarmKeys[index] = newKey
-            saveAlarms()
-        }
-    }
-
-    fun saveAlarms() {
+    private fun saveAlarms() {
         val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putStringSet("alarmKeys", alarmKeys.toSet())
@@ -239,7 +199,7 @@ class MainActivity : ComponentActivity(),
         }
     }
 
-    fun loadAlarms() {
+    private fun loadAlarms() {
         val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
         alarmKeys =
             sharedPref.getStringSet("alarmKeys", emptySet())?.toMutableList() ?: mutableListOf()
@@ -249,6 +209,29 @@ class MainActivity : ComponentActivity(),
             buildDefaultAlarms()
         }
     }
+
+//    fun removeAlarm(index: Int) {
+//        if (index in alarmKeys.indices) {
+//            alarmKeys.removeAt(index)
+//            saveAlarms()
+//        }
+//    }
+//
+//    fun modifyAlarm(index: Int, newKey: String) {
+//        if (index in alarmKeys.indices) {
+//            alarmKeys[index] = newKey
+//            saveAlarms()
+//        }
+//    }
+//
+//
+
+//    val manageButton: Button = findViewById(R.id.manage_button)
+//    manageButton.setOnClickListener {
+//        val intent = Intent(this, ManageAlarmsActivity::class.java)
+//        intent.putStringArrayListExtra("alarmKeys", ArrayList(alarmKeys))
+//        startActivity(intent)
+//    }
 
 }
 

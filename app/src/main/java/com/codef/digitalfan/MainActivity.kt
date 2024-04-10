@@ -5,11 +5,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -27,8 +29,6 @@ class MainActivity : ComponentActivity(),
     private lateinit var alarmManager: AlarmManager
     private lateinit var alarmIntent: PendingIntent
 
-    private var alarmKeys: MutableList<String> = mutableListOf()
-
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -38,85 +38,131 @@ class MainActivity : ComponentActivity(),
         exoPlayer = ExoPlayerSingleton.getInstance(this)
         ExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
 
-        loadAlarms()
-        setUpAlarmManagerAndGestureDetector()
-        setUpSpinner()
-
-    }
-
-    private fun setUpSpinner() {
-        val spinner: Spinner = findViewById(R.id.spinner)
-        val displayKeys = alarmKeys.map { it.substringBefore("|") }.toMutableList() // Create a new mutable list with the part before the pipe symbol
-        displayKeys.sort()
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayKeys)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View,
-                position: Int,
-                id: Long
-            ) {
-                val selectedItem = parent.getItemAtPosition(position).toString()
-                val selectedAlarmKey = alarmKeys.find { it.startsWith(selectedItem) }
-                val selectedAlarmValue = selectedAlarmKey?.split("|")?.get(1)
-                val selectedAlarmTimeArray = selectedAlarmValue?.split(" ")
-                val selectedAlarmTime = selectedAlarmTimeArray?.get(0)
-                val selectedAlarmAmPm = selectedAlarmTimeArray?.get(1)
-                val sharedPref = getSharedPreferences("DigitalFanPrefs", MODE_PRIVATE)
-                with(sharedPref.edit()) {
-                    putString("wakeUpTime", selectedAlarmTime)
-                    if (selectedAlarmTime != "No") {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Alarm will sound at $selectedAlarmTime $selectedAlarmAmPm",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        Toast.makeText(
-                            this@MainActivity,
-                            "Alarm is turned off",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    apply()
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // This code will be executed when the Spinner selection is cleared
-            }
-        }
-    }
-
-    private fun setUpAlarmManagerAndGestureDetector() {
-
-        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
-        val calendar: Calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            add(Calendar.MINUTE, 1)
-            set(Calendar.SECOND, 0)
-        }
-
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_FIFTEEN_MINUTES / 15,
-            alarmIntent
-        )
+        setUpSpinnerAndButtons()
 
         gestureDetector = GestureDetectorCompat(this, this)
         gestureDetector.setOnDoubleTapListener(this)
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    private fun setUpSpinnerAndButtons() {
+
+        val spinner1: Spinner = findViewById(R.id.spinnerHour)
+        val numbers = (1..12).map { String.format("%02d", it) } // Create a list of strings from 1 to 12
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, numbers)
+        adapter.setDropDownViewResource(R.layout.spinner_item)
+        spinner1.adapter = adapter
+
+        val defaultHour = Utils.getAppPreferenceString(this, "spinnerHour", "07")
+        val defaultHourPosition = numbers.indexOf(defaultHour)
+        if (defaultHourPosition != -1) {
+            spinner1.setSelection(defaultHourPosition)
+        }
+
+        spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val selectedValue = parent.getItemAtPosition(position).toString()
+                Utils.setAppPreferenceString(this@MainActivity, "spinnerHour", selectedValue)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
+        val spinner2: Spinner = findViewById(R.id.spinnerMinutes)
+        val minutes = (0..55 step 5).map { String.format("%02d", it) } // Create a list of strings from "00" to "55" in increments of 5
+        val adapter2 = ArrayAdapter(this, R.layout.spinner_item, minutes)
+        adapter2.setDropDownViewResource(R.layout.spinner_item)
+        spinner2.adapter = adapter2
+
+        val defaultMinute = Utils.getAppPreferenceString(this, "spinnerMinutes", "50")
+        val defaultMinutePosition = minutes.indexOf(defaultMinute)
+        if (defaultMinutePosition != -1) {
+            spinner2.setSelection(defaultMinutePosition)
+        }
+
+        spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val selectedValue = parent.getItemAtPosition(position).toString()
+                Utils.setAppPreferenceString(this@MainActivity, "spinnerMinutes", selectedValue)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
+        val spinner3: Spinner = findViewById(R.id.spinnerAmPm)
+        val amPmValues = arrayOf("AM", "PM") // Create an array with "AM" and "PM"
+        val adapter3 = ArrayAdapter(this, R.layout.spinner_item, amPmValues)
+        adapter3.setDropDownViewResource(R.layout.spinner_item)
+        spinner3.adapter = adapter3
+
+        val defaultAmPm = Utils.getAppPreferenceString(this, "spinnerAmPm", "AM")
+        val defaultAmPmPosition = amPmValues.indexOf(defaultAmPm)
+        if (defaultAmPmPosition != -1) {
+            spinner3.setSelection(defaultAmPmPosition)
+        }
+
+        spinner3.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val selectedValue = parent.getItemAtPosition(position).toString()
+                Utils.setAppPreferenceString(this@MainActivity, "spinnerAmPm", selectedValue)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+            }
+        }
+
+        val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
+        setAlarmButton.setOnClickListener {
+            var hourValueOriginal = spinner1.selectedItem.toString()
+            var hourValue = spinner1.selectedItem.toString()
+            val minutesValue = spinner2.selectedItem.toString()
+            val amPmValue = spinner3.selectedItem.toString()
+
+            if (amPmValue == "PM") {
+                hourValue = (hourValue.toInt() + 12).toString()
+            }
+
+            Log.d("bobo", "Setting alarm for $hourValue:$minutesValue $amPmValue")
+
+            alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmReceiver::class.java)
+            alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            val calendar: Calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hourValue.toInt())
+                set(Calendar.MINUTE, minutesValue.toInt())
+            }
+
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
+            Toast.makeText(this, "Alarm is set for $hourValueOriginal:$minutesValue $amPmValue", Toast.LENGTH_LONG).show()
+            Utils.setAppPreferenceString(this, "isAlarming", "false")
+
+        }
+
+        val turnOffAlarmButton: Button = findViewById(R.id.turnOffAlarmButton)
+        turnOffAlarmButton.setOnClickListener {
+            stopAlarmAndResetExoplayer()
+        }
+
+        Toast.makeText(this, "Alarm is not currently set.", Toast.LENGTH_LONG).show()
+
+    }
+
+
+
+    private fun stopAlarmAndResetExoplayer() {
+        if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
+            alarmManager.cancel(alarmIntent)
+            Log.d("bobo", "Alarm turned off.")
+        } else {
+            Log.d("bobo", "AlarmManager and alarmIntent not initialized.")
+        }
+        ExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+        Utils.setAppPreferenceString(this, "isAlarming", "false")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopAlarmAndResetExoplayer()
         exoPlayer.release()
     }
 
@@ -133,6 +179,7 @@ class MainActivity : ComponentActivity(),
     }
 
     override fun onLongPress(event: MotionEvent) {
+
     }
 
     override fun onFling(
@@ -145,6 +192,7 @@ class MainActivity : ComponentActivity(),
     }
 
     override fun onShowPress(event: MotionEvent) {
+
     }
 
     override fun onSingleTapUp(event: MotionEvent): Boolean {
@@ -176,62 +224,6 @@ class MainActivity : ComponentActivity(),
     override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
         return true
     }
-
-    private fun buildDefaultAlarms() {
-        addAlarm("No Alarm|No Alarm")
-        addAlarm("Steve - In Office|07:50 AM")
-        addAlarm("Steve - Work From Home|08:40 AM")
-        addAlarm("Steve - Work From Home (On Call)|07:30 AM")
-        addAlarm("Tenzin - In Office|07:30 AM")
-        addAlarm("Tenzin - Work From Home|08:20 AM")
-    }
-
-    private fun addAlarm(key: String) {
-        alarmKeys.add(key)
-        saveAlarms()
-    }
-
-    private fun saveAlarms() {
-        val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putStringSet("alarmKeys", alarmKeys.toSet())
-            apply()
-        }
-    }
-
-    private fun loadAlarms() {
-        val sharedPref = getSharedPreferences("DigitalFanPrefs", Context.MODE_PRIVATE)
-        alarmKeys =
-            sharedPref.getStringSet("alarmKeys", emptySet())?.toMutableList() ?: mutableListOf()
-
-        // If alarmKeys and alarmValues are empty, initialize them with default values
-        if (alarmKeys.isEmpty()) {
-            buildDefaultAlarms()
-        }
-    }
-
-//    fun removeAlarm(index: Int) {
-//        if (index in alarmKeys.indices) {
-//            alarmKeys.removeAt(index)
-//            saveAlarms()
-//        }
-//    }
-//
-//    fun modifyAlarm(index: Int, newKey: String) {
-//        if (index in alarmKeys.indices) {
-//            alarmKeys[index] = newKey
-//            saveAlarms()
-//        }
-//    }
-//
-//
-
-//    val manageButton: Button = findViewById(R.id.manage_button)
-//    manageButton.setOnClickListener {
-//        val intent = Intent(this, ManageAlarmsActivity::class.java)
-//        intent.putStringArrayListExtra("alarmKeys", ArrayList(alarmKeys))
-//        startActivity(intent)
-//    }
 
 }
 

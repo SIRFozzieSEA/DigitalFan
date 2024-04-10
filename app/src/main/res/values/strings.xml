@@ -2,4 +2,6 @@
     <string name="app_name">DigitalFan</string>
     <string name="digitalfan">DigitalFan</string>
     <string name="add_alarm">Add Alarm</string>
+    <string name="setAlarmButtonText">Set Alarm</string>
+    <string name="turnOffAlarmButtonText">Turn Off Alarm</string>
 </resources>

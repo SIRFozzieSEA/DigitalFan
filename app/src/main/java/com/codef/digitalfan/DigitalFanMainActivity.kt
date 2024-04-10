@@ -2,7 +2,6 @@ package com.codef.digitalfan
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -21,7 +20,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import java.util.Calendar
 
-class MainActivity : ComponentActivity(),
+class DigitalFanMainActivity : ComponentActivity(),
     GestureDetector.OnDoubleTapListener, GestureDetector.OnGestureListener {
 
     private lateinit var exoPlayer: ExoPlayer
@@ -35,8 +34,8 @@ class MainActivity : ComponentActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        exoPlayer = ExoPlayerSingleton.getInstance(this)
-        ExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+        exoPlayer = DigitalFanExoPlayerSingleton.getInstance(this)
+        DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
 
         setUpSpinnerAndButtons()
 
@@ -53,7 +52,7 @@ class MainActivity : ComponentActivity(),
         adapter.setDropDownViewResource(R.layout.spinner_item)
         spinner1.adapter = adapter
 
-        val defaultHour = Utils.getAppPreferenceString(this, "spinnerHour", "07")
+        val defaultHour = DigitalFanUtils.getAppPreferenceString(this, "spinnerHour", "07")
         val defaultHourPosition = numbers.indexOf(defaultHour)
         if (defaultHourPosition != -1) {
             spinner1.setSelection(defaultHourPosition)
@@ -62,7 +61,7 @@ class MainActivity : ComponentActivity(),
         spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val selectedValue = parent.getItemAtPosition(position).toString()
-                Utils.setAppPreferenceString(this@MainActivity, "spinnerHour", selectedValue)
+                DigitalFanUtils.setAppPreferenceString(this@DigitalFanMainActivity, "spinnerHour", selectedValue)
             }
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
@@ -74,7 +73,7 @@ class MainActivity : ComponentActivity(),
         adapter2.setDropDownViewResource(R.layout.spinner_item)
         spinner2.adapter = adapter2
 
-        val defaultMinute = Utils.getAppPreferenceString(this, "spinnerMinutes", "50")
+        val defaultMinute = DigitalFanUtils.getAppPreferenceString(this, "spinnerMinutes", "50")
         val defaultMinutePosition = minutes.indexOf(defaultMinute)
         if (defaultMinutePosition != -1) {
             spinner2.setSelection(defaultMinutePosition)
@@ -83,7 +82,7 @@ class MainActivity : ComponentActivity(),
         spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val selectedValue = parent.getItemAtPosition(position).toString()
-                Utils.setAppPreferenceString(this@MainActivity, "spinnerMinutes", selectedValue)
+                DigitalFanUtils.setAppPreferenceString(this@DigitalFanMainActivity, "spinnerMinutes", selectedValue)
             }
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
@@ -95,7 +94,7 @@ class MainActivity : ComponentActivity(),
         adapter3.setDropDownViewResource(R.layout.spinner_item)
         spinner3.adapter = adapter3
 
-        val defaultAmPm = Utils.getAppPreferenceString(this, "spinnerAmPm", "AM")
+        val defaultAmPm = DigitalFanUtils.getAppPreferenceString(this, "spinnerAmPm", "AM")
         val defaultAmPmPosition = amPmValues.indexOf(defaultAmPm)
         if (defaultAmPmPosition != -1) {
             spinner3.setSelection(defaultAmPmPosition)
@@ -104,7 +103,7 @@ class MainActivity : ComponentActivity(),
         spinner3.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 val selectedValue = parent.getItemAtPosition(position).toString()
-                Utils.setAppPreferenceString(this@MainActivity, "spinnerAmPm", selectedValue)
+                DigitalFanUtils.setAppPreferenceString(this@DigitalFanMainActivity, "spinnerAmPm", selectedValue)
             }
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
@@ -112,7 +111,7 @@ class MainActivity : ComponentActivity(),
 
         val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
         setAlarmButton.setOnClickListener {
-            var hourValueOriginal = spinner1.selectedItem.toString()
+            val hourValueOriginal = spinner1.selectedItem.toString()
             var hourValue = spinner1.selectedItem.toString()
             val minutesValue = spinner2.selectedItem.toString()
             val amPmValue = spinner3.selectedItem.toString()
@@ -124,7 +123,7 @@ class MainActivity : ComponentActivity(),
             Log.d("bobo", "Setting alarm for $hourValue:$minutesValue $amPmValue")
 
             alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, AlarmReceiver::class.java)
+            val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
             val calendar: Calendar = Calendar.getInstance().apply {
@@ -134,7 +133,6 @@ class MainActivity : ComponentActivity(),
 
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
             Toast.makeText(this, "Alarm is set for $hourValueOriginal:$minutesValue $amPmValue", Toast.LENGTH_LONG).show()
-            Utils.setAppPreferenceString(this, "isAlarming", "false")
 
         }
 
@@ -156,8 +154,7 @@ class MainActivity : ComponentActivity(),
         } else {
             Log.d("bobo", "AlarmManager and alarmIntent not initialized.")
         }
-        ExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
-        Utils.setAppPreferenceString(this, "isAlarming", "false")
+        DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
     }
 
     override fun onStop() {

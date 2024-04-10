@@ -11,9 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DigitalFan">
 
-        <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".DigitalFanAlarmReceiver" />
         <activity
-            android:name=".MainActivity"
+            android:name=".DigitalFanMainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.DigitalFan">

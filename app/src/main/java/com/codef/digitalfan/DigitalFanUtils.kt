@@ -1,9 +1,8 @@
 package com.codef.digitalfan
 
 import android.content.Context
-import android.util.Log
 
-class Utils {
+class DigitalFanUtils {
 
     companion object {
 

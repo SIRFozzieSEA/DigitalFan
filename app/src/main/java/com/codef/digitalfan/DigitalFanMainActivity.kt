@@ -145,8 +145,6 @@ class DigitalFanMainActivity : ComponentActivity(),
 
     }
 
-
-
     private fun stopAlarmAndResetExoplayer() {
         if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
             alarmManager.cancel(alarmIntent)
@@ -159,9 +157,14 @@ class DigitalFanMainActivity : ComponentActivity(),
 
     override fun onStop() {
         super.onStop()
-        stopAlarmAndResetExoplayer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        alarmManager.cancel(alarmIntent)
         exoPlayer.release()
     }
+
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return if (gestureDetector.onTouchEvent(event)) {

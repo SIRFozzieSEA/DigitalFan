@@ -17,7 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="100dp"
         android:orientation="horizontal">
 
         <Spinner
@@ -51,7 +51,7 @@
             android:text="@string/setAlarmButtonText"
             android:textAllCaps="false"
             android:layout_margin="5dp"
-            android:textSize="30sp"/>
+            android:textSize="18sp"/>
 
     </LinearLayout>
 
@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/topLinearLayout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="900dp"
+        android:layout_marginTop="400dp"
         android:orientation="horizontal">
 
         <Button
@@ -70,7 +70,7 @@
             android:text="@string/turnOffAlarmButtonText"
             android:textAllCaps="false"
             android:layout_margin="5dp"
-            android:textSize="30sp"/>
+            android:textSize="18sp"/>
 
     </LinearLayout>
 

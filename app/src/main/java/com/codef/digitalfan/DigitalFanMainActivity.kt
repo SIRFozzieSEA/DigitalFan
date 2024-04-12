@@ -125,9 +125,6 @@ class DigitalFanMainActivity : ComponentActivity(),
                 hourValue = 1
             }
 
-            Toast.makeText(this, "Setting alarm for " + String.format("%02d", hourValueOriginal)
-                    + ":" + String.format("%02d", minutesValue) + " $amPmValue", Toast.LENGTH_SHORT).show()
-
             val currentTime = Calendar.getInstance()
             Log.d("bobo", "Current time: " + currentTime.time.toString())
             Log.d("bobo", "Current time: " + currentTime.timeInMillis)
@@ -160,6 +157,10 @@ class DigitalFanMainActivity : ComponentActivity(),
             val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
             alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.timeInMillis, alarmIntent)
+
+            Toast.makeText(this, "Alarm set for " + String.format("%02d", hourValueOriginal)
+                    + ":" + String.format("%02d", minutesValue) + " $amPmValue " + if (dayOffset == 0) "today" else "tomorrow", Toast.LENGTH_SHORT).show()
+
 
         }
 

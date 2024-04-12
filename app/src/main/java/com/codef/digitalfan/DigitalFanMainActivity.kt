@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -30,8 +31,6 @@ class DigitalFanMainActivity : ComponentActivity(),
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
 
         super.onCreate(savedInstanceState)
@@ -115,7 +114,7 @@ class DigitalFanMainActivity : ComponentActivity(),
         val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
         setAlarmButton.setOnClickListener {
 
-            val hourValueOriginal = spinner1.selectedItem.toString().toInt()
+            var hourValueOriginal = spinner1.selectedItem.toString().toInt()
             var hourValue = spinner1.selectedItem.toString().toInt()
             val minutesValue = spinner2.selectedItem.toString().toInt()
             val amPmValue = spinner3.selectedItem.toString()
@@ -126,21 +125,29 @@ class DigitalFanMainActivity : ComponentActivity(),
                 hourValue = 1
             }
 
-            if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
-                alarmManager.cancel(alarmIntent)
-            }
-
             Toast.makeText(this, "Setting alarm for " + String.format("%02d", hourValueOriginal)
                     + ":" + String.format("%02d", minutesValue) + " $amPmValue", Toast.LENGTH_SHORT).show()
 
             val currentTime = Calendar.getInstance()
-            val calendar: Calendar = Calendar.getInstance().apply {
+            Log.d("bobo", "Current time: " + currentTime.time.toString())
+            Log.d("bobo", "Current time: " + currentTime.timeInMillis)
+
+            val alarmTime: Calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, hourValue)
                 set(Calendar.MINUTE, minutesValue)
+                set(Calendar.SECOND, 0)
             }
 
+            Log.d("bobo", "  Alarm time: " + alarmTime.time.toString())
+            Log.d("bobo", "  Alarm time: " + alarmTime.timeInMillis)
+
+            if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
+                alarmManager.cancel(alarmIntent)
+            }
+
+            val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.timeInMillis, alarmIntent)
 
         }
 
@@ -148,8 +155,6 @@ class DigitalFanMainActivity : ComponentActivity(),
         turnOffAlarmButton.setOnClickListener {
             stopAlarmAndResetReleaseExoplayer(false)
         }
-
-        Toast.makeText(this, "Alarm is not currently set.", Toast.LENGTH_SHORT).show()
 
     }
 

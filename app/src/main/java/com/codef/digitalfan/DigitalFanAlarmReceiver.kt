@@ -12,7 +12,6 @@ class DigitalFanAlarmReceiver : BroadcastReceiver() {
         val exoPlayer = DigitalFanExoPlayerSingleton.getInstance(context)
         Log.d("bobo", "KICKING OFF ALARM!")
         DigitalFanExoPlayerSingleton.setupExoPlayerAlarm(exoPlayer)
-        DigitalFanUtils.setAppPreferenceString(context, "isAlarming","true")
 
     }
 

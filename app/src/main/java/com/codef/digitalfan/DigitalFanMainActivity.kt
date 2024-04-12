@@ -25,11 +25,15 @@ class DigitalFanMainActivity : ComponentActivity(),
 
     private lateinit var exoPlayer: ExoPlayer
     private lateinit var gestureDetector: GestureDetectorCompat
-    private lateinit var alarmManager: AlarmManager
     private lateinit var alarmIntent: PendingIntent
+    private lateinit var alarmManager: AlarmManager
 
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+        alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -111,58 +115,62 @@ class DigitalFanMainActivity : ComponentActivity(),
 
         val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
         setAlarmButton.setOnClickListener {
-            val hourValueOriginal = spinner1.selectedItem.toString()
-            var hourValue = spinner1.selectedItem.toString()
-            val minutesValue = spinner2.selectedItem.toString()
+
+            val hourValueOriginal = spinner1.selectedItem.toString().toInt()
+            var hourValue = spinner1.selectedItem.toString().toInt()
+            val minutesValue = spinner2.selectedItem.toString().toInt()
             val amPmValue = spinner3.selectedItem.toString()
 
-            if (amPmValue == "PM") {
-                hourValue = (hourValue.toInt() + 12).toString()
+            if (amPmValue == "PM" && hourValue != 12) {
+                hourValue += 12
+            } else if (amPmValue == "AM" && hourValue == 12) {
+                hourValue = 1
             }
 
-            Log.d("bobo", "Setting alarm for $hourValue:$minutesValue $amPmValue")
+            if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
+                alarmManager.cancel(alarmIntent)
+            }
 
-            alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
-            alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            Toast.makeText(this, "Setting alarm for " + String.format("%02d", hourValueOriginal)
+                    + ":" + String.format("%02d", minutesValue) + " $amPmValue", Toast.LENGTH_SHORT).show()
 
+            val currentTime = Calendar.getInstance()
             val calendar: Calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hourValue.toInt())
-                set(Calendar.MINUTE, minutesValue.toInt())
+                set(Calendar.HOUR_OF_DAY, hourValue)
+                set(Calendar.MINUTE, minutesValue)
             }
 
+            alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, alarmIntent)
-            Toast.makeText(this, "Alarm is set for $hourValueOriginal:$minutesValue $amPmValue", Toast.LENGTH_LONG).show()
 
         }
 
         val turnOffAlarmButton: Button = findViewById(R.id.turnOffAlarmButton)
         turnOffAlarmButton.setOnClickListener {
-            stopAlarmAndResetExoplayer()
+            stopAlarmAndResetReleaseExoplayer(false)
         }
 
-        Toast.makeText(this, "Alarm is not currently set.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "Alarm is not currently set.", Toast.LENGTH_SHORT).show()
 
     }
 
-    private fun stopAlarmAndResetExoplayer() {
+    private fun stopAlarmAndResetReleaseExoplayer(releaseExoplayer: Boolean) {
         if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
             alarmManager.cancel(alarmIntent)
-            Log.d("bobo", "Alarm turned off.")
+            Toast.makeText(this, "Alarm cancelled.", Toast.LENGTH_SHORT).show()
         } else {
-            Log.d("bobo", "AlarmManager and alarmIntent not initialized.")
+            Toast.makeText(this, "AlarmManager and alarmIntent not initialized.", Toast.LENGTH_SHORT).show()
         }
-        DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
-    }
-
-    override fun onStop() {
-        super.onStop()
+        if (releaseExoplayer) {
+            exoPlayer.release()
+        } else {
+            DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        alarmManager.cancel(alarmIntent)
-        exoPlayer.release()
+        stopAlarmAndResetReleaseExoplayer(true)
     }
 
 

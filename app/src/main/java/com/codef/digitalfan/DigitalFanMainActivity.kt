@@ -114,7 +114,7 @@ class DigitalFanMainActivity : ComponentActivity(),
         val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
         setAlarmButton.setOnClickListener {
 
-            var hourValueOriginal = spinner1.selectedItem.toString().toInt()
+            val hourValueOriginal = spinner1.selectedItem.toString().toInt()
             var hourValue = spinner1.selectedItem.toString().toInt()
             val minutesValue = spinner2.selectedItem.toString().toInt()
             val amPmValue = spinner3.selectedItem.toString()

@@ -132,10 +132,22 @@ class DigitalFanMainActivity : ComponentActivity(),
             Log.d("bobo", "Current time: " + currentTime.time.toString())
             Log.d("bobo", "Current time: " + currentTime.timeInMillis)
 
-            val alarmTime: Calendar = Calendar.getInstance().apply {
+            var dayOffset = 0
+            var alarmTime: Calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, hourValue)
                 set(Calendar.MINUTE, minutesValue)
                 set(Calendar.SECOND, 0)
+                add(Calendar.DAY_OF_MONTH, dayOffset)
+            }
+
+            if (alarmTime.timeInMillis < currentTime.timeInMillis) {
+                dayOffset = 1
+                alarmTime = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, hourValue)
+                    set(Calendar.MINUTE, minutesValue)
+                    set(Calendar.SECOND, 0)
+                    add(Calendar.DAY_OF_MONTH, dayOffset)
+                }
             }
 
             Log.d("bobo", "  Alarm time: " + alarmTime.time.toString())

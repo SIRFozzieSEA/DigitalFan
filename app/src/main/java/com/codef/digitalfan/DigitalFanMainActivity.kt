@@ -1,5 +1,6 @@
 package com.codef.digitalfan
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
@@ -46,6 +47,7 @@ class DigitalFanMainActivity : ComponentActivity(),
 
     }
 
+    @SuppressLint("ScheduleExactAlarm")
     private fun setUpSpinnerAndButtons() {
 
         val spinner1: Spinner = findViewById(R.id.spinnerHour)
@@ -156,7 +158,7 @@ class DigitalFanMainActivity : ComponentActivity(),
 
             val intent = Intent(this, DigitalFanAlarmReceiver::class.java)
             alarmIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
-            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.timeInMillis, alarmIntent)
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.timeInMillis, alarmIntent)
 
             Toast.makeText(this, "Alarm set for " + String.format("%02d", hourValueOriginal)
                     + ":" + String.format("%02d", minutesValue) + " $amPmValue " + if (dayOffset == 0) "today" else "tomorrow", Toast.LENGTH_SHORT).show()

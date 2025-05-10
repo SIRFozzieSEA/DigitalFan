@@ -4,21 +4,24 @@
     android:layout_height="match_parent"
     tools:context=".DigitalFanMainActivity">
 
+    <!-- Background Image -->
     <ImageView
+        android:id="@+id/fanImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/fanpic"
-        android:contentDescription="@string/digitalfan"
-        android:id="@+id/fanImage"/>
+        android:contentDescription="@string/digitalfan" />
 
+    <!-- Top LinearLayout for Time Spinners and Set Alarm Button -->
     <LinearLayout
         android:id="@+id/topLinearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
 
         <Spinner
             android:id="@+id/spinnerHour"
@@ -26,7 +29,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:layout_margin="5dp"
-            android:textSize="30sp"/>
+            android:textSize="30sp" />
 
         <Spinner
             android:id="@+id/spinnerMinutes"
@@ -34,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:layout_margin="5dp"
-            android:textSize="30sp"/>
+            android:textSize="30sp" />
 
         <Spinner
             android:id="@+id/spinnerAmPm"
@@ -42,7 +45,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/white"
             android:layout_margin="5dp"
-            android:textSize="30sp"/>
+            android:textSize="30sp" />
 
         <Button
             android:id="@+id/setAlarmButton"
@@ -51,17 +54,39 @@
             android:text="@string/setAlarmButtonText"
             android:textAllCaps="false"
             android:layout_margin="5dp"
-            android:textSize="18sp"/>
-
+            android:textSize="18sp" />
     </LinearLayout>
 
+    <!-- Fan/Water Spinner Layout -->
     <LinearLayout
+        android:id="@+id/fanWaterLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/topLinearLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="400dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@android:color/holo_blue_light"
+        android:elevation="5dp">
+
+        <Spinner
+            android:id="@+id/spinnerFanWater"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:background="@android:color/white"
+            android:layout_margin="5dp"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <!-- Turn Off Alarm Button Layout -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fanWaterLayout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
 
         <Button
             android:id="@+id/turnOffAlarmButton"
@@ -70,8 +95,7 @@
             android:text="@string/turnOffAlarmButtonText"
             android:textAllCaps="false"
             android:layout_margin="5dp"
-            android:textSize="18sp"/>
-
+            android:textSize="18sp" />
     </LinearLayout>
 
 </RelativeLayout>

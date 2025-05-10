@@ -4,4 +4,12 @@
     <string name="add_alarm">Add Alarm</string>
     <string name="setAlarmButtonText">Set Alarm</string>
     <string name="turnOffAlarmButtonText">Turn Off Alarm</string>
+    <string name="waterPic">waterpic.jpg</string>
+    <string name="fanPic">fanpic.jpg</string>
+
+    <string-array name="fan_water_array">
+        <item>Fan</item>
+        <item>Water</item>
+    </string-array>
+
 </resources>

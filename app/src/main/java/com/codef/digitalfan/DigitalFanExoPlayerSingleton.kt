@@ -38,6 +38,21 @@ object DigitalFanExoPlayerSingleton {
 
     }
 
+    fun setupExoPlayerWater(exoPlayerInstance: ExoPlayer) {
+
+        exoPlayerInstance.setMediaItem(
+            MediaItem.Builder()
+                .setUri(Uri.parse("asset:///water.mp3"))
+                .setMimeType(MimeTypes.AUDIO_MPEG)
+                .build()
+        )
+        exoPlayerInstance.repeatMode = Player.REPEAT_MODE_ONE
+        exoPlayerInstance.setHandleAudioBecomingNoisy(true)
+        exoPlayerInstance.prepare()
+
+    }
+
+
     fun setupExoPlayerAlarm(exoPlayerInstance: ExoPlayer) {
 
         exoPlayerInstance.setMediaItem(

@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -49,6 +50,8 @@ class DigitalFanMainActivity : ComponentActivity(),
 
     @SuppressLint("ScheduleExactAlarm")
     private fun setUpSpinnerAndButtons() {
+
+        val fanImage: ImageView = findViewById(R.id.fanImage)
 
         val spinner1: Spinner = findViewById(R.id.spinnerHour)
         val numbers = (1..12).map { String.format("%02d", it) } // Create a list of strings from 1 to 12
@@ -113,6 +116,22 @@ class DigitalFanMainActivity : ComponentActivity(),
             }
         }
 
+        // Find the spinner
+        val spinnerFanWater: Spinner = findViewById(R.id.spinnerFanWater)
+
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        val fanadapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.fan_water_array,
+            android.R.layout.simple_spinner_item
+        )
+
+        // Specify the layout to use when the list of choices appears
+        fanadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Apply the adapter to the spinner
+        spinnerFanWater.adapter = fanadapter
+
         val setAlarmButton: Button = findViewById(R.id.setAlarmButton)
         setAlarmButton.setOnClickListener {
 
@@ -166,30 +185,54 @@ class DigitalFanMainActivity : ComponentActivity(),
 
         }
 
+        // Set up the listener for spinnerFanWater
+        spinnerFanWater.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedValue = parent.getItemAtPosition(position).toString()
+                when (selectedValue) {
+                    "Fan" -> fanImage.setImageResource(R.drawable.fanpic) // Replace with your fan image resource
+                    "Water" -> fanImage.setImageResource(R.drawable.waterpic) // Replace with your water image resource
+                }
+                stopAlarmAndResetReleaseExoplayer(false, selectedValue)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Optional: Handle case where no item is selected
+            }
+        }
+
         val turnOffAlarmButton: Button = findViewById(R.id.turnOffAlarmButton)
         turnOffAlarmButton.setOnClickListener {
-            stopAlarmAndResetReleaseExoplayer(false)
+
+
+
         }
 
     }
 
-    private fun stopAlarmAndResetReleaseExoplayer(releaseExoplayer: Boolean) {
+    private fun stopAlarmAndResetReleaseExoplayer(releaseExoplayer: Boolean, whichSound: String) {
         if (::alarmManager.isInitialized && ::alarmIntent.isInitialized) {
             alarmManager.cancel(alarmIntent)
             Toast.makeText(this, "Alarm cancelled.", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "AlarmManager and alarmIntent not initialized.", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "AlarmManager and alarmIntent not initialized.", Toast.LENGTH_SHORT).show()
         }
         if (releaseExoplayer) {
             exoPlayer.release()
         } else {
-            DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+            if (whichSound == "Water") {
+                DigitalFanExoPlayerSingleton.setupExoPlayerWater(exoPlayer)
+            } else if (whichSound == "Fan") {
+                DigitalFanExoPlayerSingleton.setupExoPlayerFan(exoPlayer)
+            } else {
+                DigitalFanExoPlayerSingleton.setupExoPlayerAlarm(exoPlayer)
+            }
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        stopAlarmAndResetReleaseExoplayer(true)
+    fun onDestroy(whichSound: String) {
+        onDestroy(whichSound)
+        stopAlarmAndResetReleaseExoplayer(true, whichSound)
     }
 
 
